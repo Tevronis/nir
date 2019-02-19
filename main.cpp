@@ -1,5 +1,5 @@
 #include <iostream>
-#include "graph.h"
+#include "graph/Graph.h"
 #include "data.h"
 #include <thread>
 #include <mutex>
@@ -82,8 +82,7 @@ void run(data_t * data) {
 
 
 int main(int argc, char *argv[]) {
-    unsigned int start_time =  clock(); // начальное время
-    // здесь должен быть фрагмент кода, время выполнения которого нужно измерить
+    clock_t start_time = clock();
     config_t config;
     data_t data;
 
@@ -92,8 +91,6 @@ int main(int argc, char *argv[]) {
 
     run(&data);
 
-    unsigned int end_time = clock(); // конечное время
-    unsigned int search_time = end_time - start_time;
-    cout << "time: " << search_time << endl;
+    std::cout << "time: " << clock() - start_time << std::endl;
     return 0;
 }

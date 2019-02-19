@@ -10,14 +10,14 @@
 #include <mutex>
 #include <thread>
 
-#include "graph.h"
+#include "graph/Graph.h"
 #include "semaphore.h"
 
 
 #define QUEUE_SIZE (4)
 
 typedef struct task_t {
-    // graph graph_f;
+    // Graph graph_f;
     int test_num = 0;
 } task_t;
 
