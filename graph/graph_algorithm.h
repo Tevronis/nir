@@ -8,8 +8,7 @@
 #include "Graph.h"
 
 namespace galgo {
-    bool is_gamilton(Graph &graph);
-    bool is_euler(Graph &graph);
+    int dfs(Graph *graph, int vertex, std::vector<bool> *used);
 }
 
 #endif //NIR_GRAPH_ALGORITHM_H

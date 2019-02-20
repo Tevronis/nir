@@ -29,7 +29,7 @@ void consumer(data_t * data, int num) {
         queue_pop(&data->queue, &task);
         {
             std::lock_guard<std::mutex> lock(data->queue.cnt_elem_lock);
-            std::cout << task.test_num << "\tfrom thread " << num << endl;
+            std::cout << task.test_num << "\tfrom thread " << num << std::endl;
         }
     }
     {

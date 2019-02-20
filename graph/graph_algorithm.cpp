@@ -5,10 +5,13 @@
 #include "graph_algorithm.h"
 
 
-bool galgo::is_euler(Graph &graph) {
-    return false;
-}
-
-bool galgo::is_gamilton(Graph &graph) {
-    return false;
+int dfs(Graph *graph, int vertex, std::vector<bool> *used) {
+    (*used)[vertex] = true;
+    int deep = 1;
+    for (const auto &neighbour: graph->graph[vertex]) {
+        if (!(*used)[neighbour]) {
+            deep += dfs(graph, neighbour, used);
+        }
+    }
+    return deep;
 }
