@@ -12,7 +12,7 @@
 int config_init (config_t * config, int argc, char * argv[])
 {
     config->multithread_mode = TM_SINGLE;
-    const char *opt_string = "ms";
+    const char *opt_string = "msf:";
     for (;;) {
         int opt = getopt(argc, argv, opt_string);
         if (-1 == opt)
@@ -24,6 +24,8 @@ int config_init (config_t * config, int argc, char * argv[])
             case 's':
                 config->multithread_mode = TM_SINGLE;
                 break;
+            case 'f':
+                config->filename = optarg;
             default:
                 return (EXIT_FAILURE);
         }

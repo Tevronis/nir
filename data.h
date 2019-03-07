@@ -16,6 +16,7 @@ typedef enum {
 
 typedef struct config_t {
     multithread_mode_t multithread_mode;
+    char * filename;
 } config_t;
 
 typedef struct data_t {

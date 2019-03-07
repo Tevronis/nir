@@ -4,6 +4,7 @@
 #include <thread>
 #include <mutex>
 #include <ctime>
+#include <fstream>
 
 void producer(data_t * data) {
     for (int i = 0; i < 1000; i++) {
@@ -43,6 +44,7 @@ void consumer(data_t * data, int num) {
 
 
 void thread_mod(data_t * data) {
+    std::cout << "Thread mod start" << std::endl;
     int nthreads = std::thread::hardware_concurrency();
     if(nthreads == 0)
         nthreads = 2;
@@ -65,7 +67,19 @@ void thread_mod(data_t * data) {
 
 
 void single_mod(data_t * data) {
+    std::cout << "Single mod start" << std::endl;
 
+    std::ifstream infile(data->config->filename);
+    if (!infile) {
+        std::cout << "param -f: filename is not correct" << std::endl;
+        raise(-1);
+    }
+    std::string s;
+    for(infile >> s; !infile.eof(); infile >> s) {
+        std::cout << "Compute line: " << s << std::endl;
+        Graph graph(s);
+        graph.print();
+    }
 }
 
 

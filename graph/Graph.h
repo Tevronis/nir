@@ -8,7 +8,10 @@
 #include <vector>
 #include <string>
 
-
+/*
+ * By default, class Graph contains a graph in adjacency list
+ *
+ * */
 class Graph {
 public:
     unsigned long long size;
@@ -18,18 +21,24 @@ public:
     explicit Graph(std::vector<std::vector<int> > g);
 
     virtual ~Graph();
-
-    static std::vector<std::vector<int> > g6_to_matrix(std::string g6);
-    static std::vector<std::vector<int> > g6_to_adjacency_list(std::string g6);
-
+    // Transform
+    static std::vector<std::vector<int> > g6_to_matrix(std::string &g6);
+    static std::vector<std::vector<int> > g6_to_adjacency_list(std::string &g6);
+    static std::vector<std::vector<int> > matrix_to_adjacency_list(std::vector<std::vector<int> > &graph);
+    static std::vector<std::vector<int> > adjacency_list_to_matrix(std::vector<std::vector<int> > &graph);
+    // Algorithms
     bool is_euler();
     bool is_gamilton();
     std::vector<int> components();
+    // Visualization
+    void print();
 
 
 private:
+    // Flags
     int _is_gamilton = -1;
     int _is_euler = -1;
+    // Statistic
     int count_of_gamilton_cycle = 0;
     int count_of_euler_cycle = 0;
 };
