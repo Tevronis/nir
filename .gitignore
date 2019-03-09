@@ -1,4 +1,4 @@
-.idea/
+# .idea/
 cmake-build-debug/
 graph6/
 test*
