@@ -74,11 +74,29 @@ void single_mod(data_t * data) {
         std::cout << "param -f: filename is not correct" << std::endl;
         raise(-1);
     }
-    std::string s;
-    for(infile >> s; !infile.eof(); infile >> s) {
-        std::cout << "Compute line: " << s << std::endl;
-        Graph graph(s);
-        graph.print();
+    if (data->config->input_type == IT_G6) {
+        std::string s;
+        for (infile >> s; !infile.eof(); infile >> s) {
+            std::cout << "Compute line: " << s << std::endl;
+            Graph graph(s);
+            graph.print();
+        }
+    }
+    if (data->config->input_type == IT_MATRIX) {
+        // used for testing
+        int n;
+        infile >> n;
+        std::vector<std::vector<int> > mat(n, std::vector<int>(n, 0));
+
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n; ++j) {
+                infile >> mat[i][j];
+            }
+        }
+        Graph graph(mat);
+        std::cout << graph.is_gamilton() << std::endl;
+        std::cout << graph.is_euler() << std::endl;
+        // graph.print();
     }
 }
 
@@ -105,6 +123,6 @@ int main(int argc, char *argv[]) {
 
     run(&data);
 
-    std::cout << "time: " << clock() - start_time << std::endl;
+    std::cout << "time: " << (clock() - start_time) / 60.0 << std::endl;
     return 0;
 }

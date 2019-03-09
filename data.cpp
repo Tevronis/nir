@@ -5,14 +5,14 @@
 #include "data.h"
 
 #include <stdio.h>
-
+#include <string.h>
 #include <stdlib.h>
 #include <getopt.h>
 
 int config_init (config_t * config, int argc, char * argv[])
 {
     config->multithread_mode = TM_SINGLE;
-    const char *opt_string = "msf:";
+    const char *opt_string = "msf:t:";
     for (;;) {
         int opt = getopt(argc, argv, opt_string);
         if (-1 == opt)
@@ -26,6 +26,15 @@ int config_init (config_t * config, int argc, char * argv[])
                 break;
             case 'f':
                 config->filename = optarg;
+                break;
+            case 't':
+                if (strcmp(optarg, "g6") == 0)
+                    config->input_type = IT_G6;
+                if (strcmp(optarg, "mat") == 0)
+                    config->input_type = IT_MATRIX;
+                if (strcmp(optarg, "list") == 0)
+                    config->input_type = IT_ADJACENCY;
+                break;
             default:
                 return (EXIT_FAILURE);
         }

@@ -17,6 +17,7 @@ public:
     unsigned long long size;
     std::vector<std::vector<int> > graph;
 public:
+    explicit Graph(Graph *g);
     explicit Graph(std::string g);
     explicit Graph(std::vector<std::vector<int> > g);
 
@@ -30,6 +31,7 @@ public:
     bool is_euler();
     bool is_gamilton();
     std::vector<int> components();
+    Graph get_closure();
     // Visualization
     void print();
 

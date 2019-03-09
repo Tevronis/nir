@@ -3,6 +3,7 @@
 //
 
 #include <iostream>
+#include <algorithm>
 #include "Graph.h"
 #include "graph_algorithm.h"
 
@@ -14,11 +15,28 @@
 Graph::Graph(std::string g) {
     std::cout << "Graph constructor from string" << std::endl;
     this->graph = g6_to_adjacency_list(g);
+    this->size = this->graph.size();
 }
 
-Graph::Graph(std::vector<std::vector<int>> g) {
+Graph::Graph(std::vector<std::vector<int> > g) {
     // Read graph from matrix to adjacency list
+    this->size = g.size();
+    this->graph = std::vector<std::vector<int> >(g.size());
+    for (int i = 0; i < g.size(); ++i) {
+        for (int j = 0; j < g.size(); ++j) {
+            if (g[i][j] == 1) {
+                this->graph[i].push_back(j);
+                // this->graph[j].push_back(i);
+            }
+        }
+    }
 }
+
+Graph::Graph(Graph *g) {
+    this->graph = g->graph;
+    this->size = g->size;
+}
+
 
 Graph::~Graph() = default;
 
@@ -148,6 +166,74 @@ std::vector<int> Graph::components() {
 *** Check for Hamilton ***
 */
 
+std::vector<int> sequence_degree_vertex(Graph *graph) {
+    /*
+     * return: sorted vector with number of vertex | deg(result[i]) > deg(result[j]) : i < j
+     * */
+    std::vector<int> result;
+    std::vector<std::pair<int, int> > pair_result;
+    for (int idx = 0; idx < graph->size; ++idx) {
+        auto &vlist = graph->graph[idx];
+        std::pair<int, int> pair = std::make_pair(vlist.size(), idx);
+        pair_result.push_back(pair);
+    }
+
+    sort(pair_result.begin(), pair_result.end());
+    result.reserve(pair_result.size());
+    for (auto p: pair_result) {
+        result.push_back(p.second);
+    }
+    reverse(result.begin(), result.end());
+    return result;
+}
+
+std::vector<int> get_not_adjacent_vertexes(Graph *graph, int v) {
+    std::vector<int> result;
+    for (int i = 0; i < graph->size; ++i) {
+        bool candidate = true;
+        for (auto ne: graph->graph[v]) {
+            if (i == v or ne == i) {
+                candidate = false;
+                break;
+            }
+        }
+        if (candidate) {
+            result.push_back(i);
+        }
+    }
+    return result;
+}
+
+Graph graph_closure(Graph *graph) {
+    /*
+     * Source: http://freeusermanuals.com/backend/web/manuals/1521810604HamiltonBondyAndChvatal.pdf
+     * */
+    Graph closure(graph);
+    for (int j = 0; j < graph->size; ++j) {
+        bool stop = true;
+        for (auto v_source: sequence_degree_vertex(&closure)) {
+            std::vector<int> not_adjacent = get_not_adjacent_vertexes(&closure, v_source);
+            for (auto v_destination: not_adjacent) {
+                // condition number 3: deg(v_destination) + deg(v_source) >= |graph.vertexes|
+                if (closure.graph[v_destination].size() + closure.graph[v_source].size() >= closure.size) {
+                    closure.graph[v_source].push_back(v_destination);
+                    closure.graph[v_destination].push_back(v_source);
+                    stop = false;
+                }
+            }
+            if (!stop)
+                break;
+        }
+        if (stop)
+            break;
+    }
+    return closure;
+}
+
+Graph Graph::get_closure() {
+    return graph_closure(this);
+}
+
 bool dirac(Graph *graph) {
     if (graph->size >= 3) {
         for (const auto &vertex: graph->graph) {
@@ -159,23 +245,49 @@ bool dirac(Graph *graph) {
     return true;
 }
 
-bool Graph::is_gamilton() {
-    bool result;
-    // Дирак
-    result = dirac(this);
-    if (result)
-        return result;
-    // Оре
+bool th_ore(Graph *graph) {
+    if (graph->size >= 3) {
+        for (int i = 0; i < graph->size; ++i) {
+            auto &current_vertex = graph->graph[i];
+            for (int j = 0; j < graph->size; ++j) {
+                // Element j not in neighbourhood of current_vertex
+                if(std::find(current_vertex.begin(), current_vertex.end(), j) != current_vertex.end()) {
+                    // check condition: deg u + deg v >= n
+                    if (current_vertex.size() + graph->graph[j].size() < graph->size) {
+                        return false;
+                    }
+                }
+            }
+        }
+    }
+    return true;
+}
 
-    // Поша
+bool th_posh(Graph *graph) {
+    if (graph->size >= 3) {
+        for (int k = 0; k < graph->size / 2; ++k) {
+            for (const auto &vertex: graph->graph) {
+                if (vertex.size() < k + 1) {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
 
-    // Редеи-Камиона
-
-    // Гуйя-Ури
-
-    // Хватала
-
+bool th_hvatal(Graph *graph) {
+    if (graph->size >= 3) {
+        Graph closure = graph_closure(graph);
+        if (dirac(&closure) or th_ore(&closure)) {
+            return true;
+        }
+    }
     return false;
+}
+
+bool Graph::is_gamilton() {
+    return th_hvatal(this);
 }
 
 void Graph::print() {
@@ -187,3 +299,5 @@ void Graph::print() {
         }
     }
 }
+
+

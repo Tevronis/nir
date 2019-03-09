@@ -14,9 +14,16 @@ typedef enum {
     TM_MULTI,
 } multithread_mode_t;
 
+typedef enum {
+    IT_G6,
+    IT_MATRIX,
+    IT_ADJACENCY,
+} input_type_t;
+
 typedef struct config_t {
     multithread_mode_t multithread_mode;
     char * filename;
+    input_type_t input_type = IT_G6;
 } config_t;
 
 typedef struct data_t {
