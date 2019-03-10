@@ -32,6 +32,7 @@ public:
     bool is_gamilton();
     std::vector<int> components();
     Graph get_closure();
+    std::vector<std::vector<int> > get_gamilton_paths();
     // Visualization
     void print();
 

@@ -13,7 +13,7 @@
  */
 
 Graph::Graph(std::string g) {
-    std::cout << "Graph constructor from string" << std::endl;
+    // std::cout << "Graph constructor from string" << std::endl;
     this->graph = g6_to_adjacency_list(g);
     this->size = this->graph.size();
 }
@@ -35,13 +35,15 @@ Graph::Graph(std::vector<std::vector<int> > g) {
 Graph::Graph(Graph *g) {
     this->graph = g->graph;
     this->size = g->size;
+    this->_is_gamilton = -1;
+    this->_is_euler = -1;
 }
 
 
 Graph::~Graph() = default;
 
 std::vector<std::vector<int> > Graph::g6_to_matrix(std::string &g6) {
-    std::cout << "Call function g6_to_matrix" << std::endl;
+    // std::cout << "Call function g6_to_matrix" << std::endl;
     int n = (int(g6[0]) - 63);
     std::vector<std::vector<int> > result(n, std::vector<int>(n, 0));
 
@@ -68,7 +70,7 @@ std::vector<std::vector<int> > Graph::g6_to_matrix(std::string &g6) {
 }
 
 std::vector<std::vector<int> > Graph::g6_to_adjacency_list(std::string &g6) {
-    std::cout << "Call function g6_to_adjacency_list" << std::endl;
+    // std::cout << "Call function g6_to_adjacency_list" << std::endl;
     int n = (int(g6[0]) - 63);
     std::vector<std::vector<int> > result(n);
 
@@ -96,7 +98,7 @@ std::vector<std::vector<int> > Graph::g6_to_adjacency_list(std::string &g6) {
 
 
 std::vector<std::vector<int> > Graph::adjacency_list_to_matrix(std::vector<std::vector<int> > &graph) {
-    std::cout << "Call adjacency_list_to_matrix" << std::endl;
+    // std::cout << "Call adjacency_list_to_matrix" << std::endl;
     std::vector<std::vector<int> > result(graph.size(), std::vector<int>(graph.size()));
 
     for (int row = 0; row < graph.size(); ++row) {
@@ -110,7 +112,7 @@ std::vector<std::vector<int> > Graph::adjacency_list_to_matrix(std::vector<std::
 }
 
 std::vector<std::vector<int> > Graph::matrix_to_adjacency_list(std::vector<std::vector<int> > &graph) {
-    std::cout << "Call matrix_to_adjacency_list" << std::endl;
+    // std::cout << "Call matrix_to_adjacency_list" << std::endl;
     std::vector<std::vector<int> > result(graph.size(), std::vector<int>());
 
     for (int i = 0; i < graph.size(); ++i) {
@@ -251,7 +253,7 @@ bool th_ore(Graph *graph) {
             auto &current_vertex = graph->graph[i];
             for (int j = 0; j < graph->size; ++j) {
                 // Element j not in neighbourhood of current_vertex
-                if(std::find(current_vertex.begin(), current_vertex.end(), j) != current_vertex.end()) {
+                if(std::find(current_vertex.begin(), current_vertex.end(), j) == current_vertex.end()) {
                     // check condition: deg u + deg v >= n
                     if (current_vertex.size() + graph->graph[j].size() < graph->size) {
                         return false;
@@ -287,7 +289,42 @@ bool th_hvatal(Graph *graph) {
 }
 
 bool Graph::is_gamilton() {
-    return th_hvatal(this);
+    if (this->_is_gamilton != -1)
+        return bool(this->_is_gamilton);
+
+    this->_is_gamilton = th_hvatal(this);
+
+    return bool(this->_is_gamilton);
+}
+
+void gamilton_paths(int v, Graph *graph, std::vector<int> *current_path, std::vector<bool> *used, std::vector<std::vector<int> > *paths) {
+    if (current_path->size() == graph->size + 1 && (*current_path)[0] == current_path->back()) {
+        // Если 1 == back и путь состоит из всех вершин и замыкается на первой
+        paths->push_back(*current_path);
+        return;
+    }
+    (*used)[v] = true;
+    for (int i = 0; i < graph->graph[v].size(); ++i) {
+        auto &item = graph->graph[v][i];
+        if (!(*used)[item] || (current_path->size() == graph->size && item == (*current_path)[0])) {
+            current_path->push_back(item);
+            gamilton_paths(item, graph, current_path, used, paths);
+            current_path->pop_back();
+        }
+    }
+    (*used)[v] = false;
+}
+
+
+std::vector<std::vector<int> > Graph::get_gamilton_paths() {
+    std::vector<std::vector<int> > result;
+    if (this->is_gamilton()) {
+        std::vector<int> current_path(1, 0);
+        std::vector<bool> used(this->size);
+        gamilton_paths(0, this, &current_path, &used, &result);
+    }
+
+    return result;
 }
 
 void Graph::print() {

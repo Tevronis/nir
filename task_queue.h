@@ -18,7 +18,7 @@
 
 typedef struct task_t {
     // Graph graph_f;
-    int test_num = 0;
+    std::string task;
 } task_t;
 
 typedef struct queue_t {

@@ -5,11 +5,19 @@
 #include <mutex>
 #include <ctime>
 #include <fstream>
+#include <map>
 
 void producer(data_t * data) {
-    for (int i = 0; i < 1000; i++) {
+    std::ifstream infile(data->config->filename);
+    if (!infile) {
+        std::cout << "param -f: filename is not correct" << std::endl;
+        raise(-1);
+    }
+    std::string s;
+    for (infile >> s; !infile.eof(); infile >> s) {
+        // std::cout << "Compute line: " << s << std::endl;
         task_t task = {
-                .test_num = i,
+                .task = s,
         };
         queue_push(&data->queue, &task);
     }
@@ -29,8 +37,10 @@ void consumer(data_t * data, int num) {
         task_t task;
         queue_pop(&data->queue, &task);
         {
+            Graph graph(task.task);
+            int result = int(graph.get_gamilton_paths().size());
             std::lock_guard<std::mutex> lock(data->queue.cnt_elem_lock);
-            std::cout << task.test_num << "\tfrom thread " << num << std::endl;
+            data->gam[result]++;
         }
     }
     {
@@ -62,6 +72,10 @@ void thread_mod(data_t * data) {
         thr.join();
     }
 
+    for (auto item: data->gam) {
+        std::cout << item.first << " " << item.second << std::endl;
+    }
+
     std::cout << "Done!" << std::endl;
 }
 
@@ -76,10 +90,14 @@ void single_mod(data_t * data) {
     }
     if (data->config->input_type == IT_G6) {
         std::string s;
+        std::map<int, int> gam;
         for (infile >> s; !infile.eof(); infile >> s) {
-            std::cout << "Compute line: " << s << std::endl;
+            // std::cout << "Compute line: " << s << std::endl;
             Graph graph(s);
-            graph.print();
+            gam[graph.get_gamilton_paths().size()]++;
+        }
+        for (auto item: gam) {
+            std::cout << item.first << " " << item.second << std::endl;
         }
     }
     if (data->config->input_type == IT_MATRIX) {
@@ -95,7 +113,17 @@ void single_mod(data_t * data) {
         }
         Graph graph(mat);
         std::cout << graph.is_gamilton() << std::endl;
-        std::cout << graph.is_euler() << std::endl;
+        auto paths = graph.get_gamilton_paths();
+        if (paths.empty()) {
+            std::cout << "path not found" << std::endl;
+            return;
+        }
+        for (auto item: paths) {
+            for (int i: item) {
+                std::cout << i << " ";
+            }
+            std::cout << std::endl;
+        }
         // graph.print();
     }
 }

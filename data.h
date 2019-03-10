@@ -7,6 +7,7 @@
 
 #include <mutex>
 #include <condition_variable>
+#include <map>
 #include "task_queue.h"
 
 typedef enum {
@@ -32,6 +33,7 @@ typedef struct data_t {
     std::mutex gen_lock;
     std::condition_variable check_cond;
     queue_t queue;
+    std::map<int, int> gam;
 } data_t;
 
 
