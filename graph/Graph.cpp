@@ -35,7 +35,7 @@ Graph::Graph(std::vector<std::vector<int> > g) {
 Graph::Graph(Graph *g) {
     this->graph = g->graph;
     this->size = g->size;
-    this->_is_gamilton = -1;
+    this->_is_hamilton = -1;
     this->_is_euler = -1;
 }
 
@@ -152,6 +152,32 @@ bool Graph::is_euler() {
 
     return true;
 }
+
+std::vector<std::vector<int> > Graph::get_euler_paths() {
+
+    return std::vector<std::vector<int>>();
+}
+
+/*
+void hamilton_paths(int v, Graph *graph, std::vector<int> *current_path, std::vector<bool> *used,
+                    std::vector<std::vector<int> > *paths) {
+    if (current_path->size() == graph->size + 1 && (*current_path)[0] == current_path->back()) {
+        // Если 1 == back и путь состоит из всех вершин и замыкается на первой
+        paths->push_back(*current_path);
+        return;
+    }
+    (*used)[v] = true;
+    for (int i = 0; i < graph->graph[v].size(); ++i) {
+        auto &item = graph->graph[v][i];
+        if (!(*used)[item] || (current_path->size() == graph->size && item == (*current_path)[0])) {
+            current_path->push_back(item);
+            hamilton_paths(item, graph, current_path, used, paths);
+            current_path->pop_back();
+        }
+    }
+    (*used)[v] = false;
+}
+ * */
 
 std::vector<int> Graph::components() {
     std::vector<bool> used(this->size, false);
@@ -278,7 +304,7 @@ bool th_posh(Graph *graph) {
     return true;
 }
 
-bool th_hvatal(Graph *graph) {
+bool th_bondi_chvatal(Graph *graph) {
     if (graph->size >= 3) {
         Graph closure = graph_closure(graph);
         if (dirac(&closure) or th_ore(&closure)) {
@@ -288,16 +314,17 @@ bool th_hvatal(Graph *graph) {
     return false;
 }
 
-bool Graph::is_gamilton() {
-    if (this->_is_gamilton != -1)
-        return bool(this->_is_gamilton);
+bool Graph::is_hamilton() {
+    if (this->_is_hamilton != -1)
+        return bool(this->_is_hamilton);
 
-    this->_is_gamilton = th_hvatal(this);
+    this->_is_hamilton = th_bondi_chvatal(this);
 
-    return bool(this->_is_gamilton);
+    return bool(this->_is_hamilton);
 }
 
-void gamilton_paths(int v, Graph *graph, std::vector<int> *current_path, std::vector<bool> *used, std::vector<std::vector<int> > *paths) {
+void hamilton_paths(int v, Graph *graph, std::vector<int> *current_path, std::vector<bool> *used,
+                    std::vector<std::vector<int> > *paths) {
     if (current_path->size() == graph->size + 1 && (*current_path)[0] == current_path->back()) {
         // Если 1 == back и путь состоит из всех вершин и замыкается на первой
         paths->push_back(*current_path);
@@ -308,7 +335,7 @@ void gamilton_paths(int v, Graph *graph, std::vector<int> *current_path, std::ve
         auto &item = graph->graph[v][i];
         if (!(*used)[item] || (current_path->size() == graph->size && item == (*current_path)[0])) {
             current_path->push_back(item);
-            gamilton_paths(item, graph, current_path, used, paths);
+            hamilton_paths(item, graph, current_path, used, paths);
             current_path->pop_back();
         }
     }
@@ -316,12 +343,12 @@ void gamilton_paths(int v, Graph *graph, std::vector<int> *current_path, std::ve
 }
 
 
-std::vector<std::vector<int> > Graph::get_gamilton_paths() {
+std::vector<std::vector<int> > Graph::get_hamilton_paths() {
     std::vector<std::vector<int> > result;
-    if (this->is_gamilton()) {
+    if (this->is_hamilton()) {
         std::vector<int> current_path(1, 0);
         std::vector<bool> used(this->size);
-        gamilton_paths(0, this, &current_path, &used, &result);
+        hamilton_paths(0, this, &current_path, &used, &result);
     }
 
     return result;
@@ -336,5 +363,3 @@ void Graph::print() {
         }
     }
 }
-
-

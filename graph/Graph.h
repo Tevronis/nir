@@ -29,20 +29,21 @@ public:
     static std::vector<std::vector<int> > adjacency_list_to_matrix(std::vector<std::vector<int> > &graph);
     // Algorithms
     bool is_euler();
-    bool is_gamilton();
+    bool is_hamilton();
     std::vector<int> components();
     Graph get_closure();
-    std::vector<std::vector<int> > get_gamilton_paths();
+    std::vector<std::vector<int> > get_hamilton_paths();
+    std::vector<std::vector<int> > get_euler_paths();
     // Visualization
     void print();
 
 
 private:
     // Flags
-    int _is_gamilton = -1;
+    int _is_hamilton = -1;
     int _is_euler = -1;
     // Statistic
-    int count_of_gamilton_cycle = 0;
+    int count_of_hamilton_cycle = 0;
     int count_of_euler_cycle = 0;
 };
 

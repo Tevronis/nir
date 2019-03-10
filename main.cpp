@@ -38,7 +38,7 @@ void consumer(data_t * data, int num) {
         queue_pop(&data->queue, &task);
         {
             Graph graph(task.task);
-            int result = int(graph.get_gamilton_paths().size());
+            int result = int(graph.get_hamilton_paths().size());
             std::lock_guard<std::mutex> lock(data->queue.cnt_elem_lock);
             data->gam[result]++;
         }
@@ -94,7 +94,7 @@ void single_mod(data_t * data) {
         for (infile >> s; !infile.eof(); infile >> s) {
             // std::cout << "Compute line: " << s << std::endl;
             Graph graph(s);
-            gam[graph.get_gamilton_paths().size()]++;
+            gam[graph.get_hamilton_paths().size()]++;
         }
         for (auto item: gam) {
             std::cout << item.first << " " << item.second << std::endl;
@@ -112,8 +112,8 @@ void single_mod(data_t * data) {
             }
         }
         Graph graph(mat);
-        std::cout << graph.is_gamilton() << std::endl;
-        auto paths = graph.get_gamilton_paths();
+        std::cout << graph.is_hamilton() << std::endl;
+        auto paths = graph.get_hamilton_paths();
         if (paths.empty()) {
             std::cout << "path not found" << std::endl;
             return;
