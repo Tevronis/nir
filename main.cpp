@@ -15,7 +15,6 @@ void producer(data_t * data) {
     }
     std::string s;
     for (infile >> s; !infile.eof(); infile >> s) {
-        // std::cout << "Compute line: " << s << std::endl;
         task_t task = {
                 .task = s,
         };
@@ -38,18 +37,18 @@ void consumer(data_t * data, int num) {
         queue_pop(&data->queue, &task);
         {
             Graph graph(task.task);
-            int result = int(graph.get_hamilton_paths().size());
+            int hams = int(graph.get_hamilton_paths().size());
+            int euls = int(graph.get_euler_paths().size());
+
             std::lock_guard<std::mutex> lock(data->queue.cnt_elem_lock);
-            data->gam[result]++;
+            data->hamilton_cycles[hams]++;
+            data->euler_cycles[euls]++;
         }
     }
     {
         std::lock_guard<std::mutex> lock(data->queue.cnt_elem_lock);
         std::cout << "thread " << num << " ended" << std::endl;
     }
-    // чтение из очереди
-    // обработка таска
-
 }
 
 
@@ -72,10 +71,6 @@ void thread_mod(data_t * data) {
         thr.join();
     }
 
-    for (auto item: data->gam) {
-        std::cout << item.first << " " << item.second << std::endl;
-    }
-
     std::cout << "Done!" << std::endl;
 }
 
@@ -90,14 +85,10 @@ void single_mod(data_t * data) {
     }
     if (data->config->input_type == IT_G6) {
         std::string s;
-        std::map<int, int> gam;
         for (infile >> s; !infile.eof(); infile >> s) {
-            // std::cout << "Compute line: " << s << std::endl;
             Graph graph(s);
-            gam[graph.get_hamilton_paths().size()]++;
-        }
-        for (auto item: gam) {
-            std::cout << item.first << " " << item.second << std::endl;
+            data->hamilton_cycles[graph.get_hamilton_paths().size()]++;
+            data->euler_cycles[graph.get_euler_paths().size()]++;
         }
     }
     if (data->config->input_type == IT_MATRIX) {
@@ -118,7 +109,7 @@ void single_mod(data_t * data) {
             std::cout << "path not found" << std::endl;
             return;
         }
-        for (auto item: paths) {
+        for (const auto& item: paths) {
             for (int i: item) {
                 std::cout << i << " ";
             }
@@ -132,11 +123,21 @@ void single_mod(data_t * data) {
 void run(data_t * data) {
     switch (data->config->multithread_mode) {
         case TM_MULTI:
+            // TODO(menc): don't work correctly. check locks
             thread_mod(data);
             break;
         case TM_SINGLE:
             single_mod(data);
             break;
+    }
+    std::cout << "* Hamilton:\n" << "paths\tcount" << std::endl;
+    for (auto item: data->hamilton_cycles) {
+        std::cout << item.first << "\t" << item.second << std::endl;
+    }
+
+    std::cout << "* Euler:\n" << "paths\tcount" << std::endl;
+    for (auto item: data->euler_cycles) {
+        std::cout << item.first << "\t" << item.second << std::endl;
     }
 }
 
@@ -151,6 +152,6 @@ int main(int argc, char *argv[]) {
 
     run(&data);
 
-    std::cout << "time: " << (clock() - start_time) / 60.0 << std::endl;
+    std::cout << "\ntime: " << (clock() - start_time) / 60.0 << std::endl;
     return 0;
 }

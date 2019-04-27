@@ -33,7 +33,8 @@ typedef struct data_t {
     std::mutex gen_lock;
     std::condition_variable check_cond;
     queue_t queue;
-    std::map<int, int> gam;
+    std::map<int, int> hamilton_cycles;
+    std::map<int, int> euler_cycles;
 } data_t;
 
 

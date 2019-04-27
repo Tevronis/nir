@@ -12,6 +12,7 @@
 int config_init (config_t * config, int argc, char * argv[])
 {
     config->multithread_mode = TM_SINGLE;
+    int correct = 0;
     const char *opt_string = "msf:t:";
     for (;;) {
         int opt = getopt(argc, argv, opt_string);
@@ -26,6 +27,7 @@ int config_init (config_t * config, int argc, char * argv[])
                 break;
             case 'f':
                 config->filename = optarg;
+                correct = 1;
                 break;
             case 't':
                 if (strcmp(optarg, "g6") == 0)
@@ -36,8 +38,13 @@ int config_init (config_t * config, int argc, char * argv[])
                     config->input_type = IT_ADJACENCY;
                 break;
             default:
+                printf("Incorrect arguments.\n! -f = filename with graphs\n  -m = multithread mod\n  -s = single mod\n  -t = [g6, mat, list] graph format in input file\n");
                 return (EXIT_FAILURE);
         }
+    }
+    if (correct == 0) {
+        printf("Incorrect arguments.\n! -f = filename with graphs\n  -m = multithread mod\n  -s = single mod\n  -t = [g6, mat, list] graph format in input file\n");
+        exit(EXIT_FAILURE);
     }
 
     return (EXIT_SUCCESS);

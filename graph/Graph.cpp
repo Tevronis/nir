@@ -153,31 +153,44 @@ bool Graph::is_euler() {
     return true;
 }
 
-std::vector<std::vector<int> > Graph::get_euler_paths() {
-
-    return std::vector<std::vector<int>>();
+int get_edge_count(Graph *graph) {
+    int result = 0;
+    for (const auto& item: graph->graph) {
+        result += item.size();
+    }
+    return result / 2;
 }
 
-/*
-void hamilton_paths(int v, Graph *graph, std::vector<int> *current_path, std::vector<bool> *used,
-                    std::vector<std::vector<int> > *paths) {
-    if (current_path->size() == graph->size + 1 && (*current_path)[0] == current_path->back()) {
+void euler_paths(int v, std::vector<std::vector<int> > *graph, std::vector<int> *current_path, int &total_edge_count, int current_edge_count, std::vector<std::vector<int> > *paths) {
+    if (total_edge_count == current_edge_count) {
         // Если 1 == back и путь состоит из всех вершин и замыкается на первой
         paths->push_back(*current_path);
         return;
     }
-    (*used)[v] = true;
-    for (int i = 0; i < graph->graph[v].size(); ++i) {
-        auto &item = graph->graph[v][i];
-        if (!(*used)[item] || (current_path->size() == graph->size && item == (*current_path)[0])) {
-            current_path->push_back(item);
-            hamilton_paths(item, graph, current_path, used, paths);
+
+    for (int u = 0; u < graph->size(); u++) {
+        if ((*graph)[v][u] == 1) {
+            (*graph)[v][u] = 0;
+            (*graph)[u][v] = 0;
+            current_path->push_back(u);
+            euler_paths(u, graph, current_path, total_edge_count, current_edge_count + 1, paths);
             current_path->pop_back();
+            (*graph)[v][u] = 1;
+            (*graph)[u][v] = 1;
         }
     }
-    (*used)[v] = false;
 }
- * */
+
+std::vector<std::vector<int> > Graph::get_euler_paths() {
+    std::vector<std::vector<int> > result;
+    if (this->is_euler()) {
+        std::vector<int> current_path(1, 0);
+        std::vector<std::vector<int> > g = this->adjacency_list_to_matrix(this->graph);
+        int total_edge_count = get_edge_count(this);
+        euler_paths(0, &g, &current_path, total_edge_count, 0, &result);
+    }
+    return result;
+}
 
 std::vector<int> Graph::components() {
     std::vector<bool> used(this->size, false);
@@ -345,11 +358,10 @@ void hamilton_paths(int v, Graph *graph, std::vector<int> *current_path, std::ve
 
 std::vector<std::vector<int> > Graph::get_hamilton_paths() {
     std::vector<std::vector<int> > result;
-    if (this->is_hamilton()) {
-        std::vector<int> current_path(1, 0);
-        std::vector<bool> used(this->size);
-        hamilton_paths(0, this, &current_path, &used, &result);
-    }
+
+    std::vector<int> current_path(1, 0);
+    std::vector<bool> used(this->size);
+    hamilton_paths(0, this, &current_path, &used, &result);
 
     return result;
 }
