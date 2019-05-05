@@ -34,7 +34,14 @@ typedef struct data_t {
     std::condition_variable check_cond;
     queue_t queue;
     std::map<int, int> hamilton_cycles;
-    std::map<int, int> euler_cycles;
+    std::map<int, int> ham_cyc_h_e;
+    std::map<int, int> ham_cyc_h_ne;
+    int count_euler_cycles = 0;
+    int count_hamilton_cycles = 0;
+    std::vector<std::string> h_e;
+    std::vector<std::string> nh_e;
+    std::vector<std::string> h_ne;
+    std::vector<std::string> nh_ne;
 } data_t;
 
 

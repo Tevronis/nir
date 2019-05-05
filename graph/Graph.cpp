@@ -80,8 +80,10 @@ std::vector<std::vector<int> > Graph::g6_to_adjacency_list(std::string &g6) {
         int ch = g6[i] - 63;
         for (int ibit = 5; ibit >= 0; --ibit) {
             if ((ch >> ibit) & 1) {
+                // printf("here1\n");
                 result[row].push_back(col);
                 result[col].push_back(row);
+                // printf("here2\n");
             }
             row++;
             if (row == col) {
@@ -137,19 +139,23 @@ bool Graph::is_euler() {
         return bool(this->_is_euler);
     // 1. Количество вершин с нечетной степенью меньше или равно двум.
     for (const auto &vec: this->graph) {
-        if (vec.size() % 2 == 1)
+        if (vec.size() % 2 == 1) {
+            this->_is_euler = 0;
             return false;
+        }
     }
     // 2. Все компоненты связности кроме, может быть одной, не содержат ребер.
     int flag = false;
     for (auto comp_size: this->components()) {
         if (comp_size != 0) {
-            if (flag)
+            if (flag) {
+                this->_is_euler = 0;
                 return false;
+            }
             flag = true;
         }
     }
-
+    this->_is_euler = 1;
     return true;
 }
 
@@ -328,6 +334,10 @@ bool th_bondi_chvatal(Graph *graph) {
 }
 
 bool Graph::is_hamilton() {
+    /*
+     * This function give't a true hamilton stat!
+     * call this function after get_hamilton_paths() for true result
+     */
     if (this->_is_hamilton != -1)
         return bool(this->_is_hamilton);
 
@@ -362,6 +372,8 @@ std::vector<std::vector<int> > Graph::get_hamilton_paths() {
     std::vector<int> current_path(1, 0);
     std::vector<bool> used(this->size);
     hamilton_paths(0, this, &current_path, &used, &result);
+
+    this->_is_hamilton = result.empty() ? 0: 1;
 
     return result;
 }

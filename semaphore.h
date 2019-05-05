@@ -34,11 +34,11 @@ public:
     inline void init(int count_ = 0) {
         this->count = count_;
     }
-
+    int count;
 private:
     std::mutex mtx;
     std::condition_variable cv;
-    int count;
+
 };
 
 
