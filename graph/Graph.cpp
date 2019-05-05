@@ -137,7 +137,7 @@ std::vector<std::vector<int> > Graph::matrix_to_adjacency_list(std::vector<std::
 bool Graph::is_euler() {
     if (this->_is_euler != -1)
         return bool(this->_is_euler);
-    // 1. Количество вершин с нечетной степенью меньше или равно двум.
+    // 1. Количество вершин с нечетной степенью равно нулю.
     for (const auto &vec: this->graph) {
         if (vec.size() % 2 == 1) {
             this->_is_euler = 0;
