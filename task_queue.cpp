@@ -22,7 +22,6 @@ void queue_destroy (queue_t * queue)
 
 bool queue_push (queue_t * queue, task_t * value) {
     queue->sem_empty.wait();
-
     {
         std::lock_guard<std::mutex> lock(queue->lock_head);
         queue->q.push(*value);
@@ -34,12 +33,12 @@ bool queue_push (queue_t * queue, task_t * value) {
 
 bool queue_pop (queue_t * queue, task_t * value) {
     queue->sem_full.wait();
-    if (queue->q.empty() || queue->stop_pop) {
-        queue->sem_full.notify();
-        return (false);
-    }
     {
         std::lock_guard<std::mutex> lock(queue->lock_head);
+        if (queue->q.empty() || queue->stop_pop) {
+            queue->sem_full.notify();
+            return (false);
+        }
         *value = queue->q.front();
         queue->q.pop();
     }

@@ -18,10 +18,11 @@ void producer(data_t * data) {
         raise(-1);
     }
     std::string s;
-    for (infile >> s; !infile.eof(); infile >> s) {
-        if (s.empty()) {
-            printf("'%s'", s.c_str());
-            continue;
+    int cnt = 1;
+    for (infile >> s; !infile.eof(); infile >> s, cnt++) {
+        if (cnt % 10000000 == 0) {
+            std::cout << cnt << " graphs has been processed." << std::endl;
+            cnt = 0;
         }
         task_t task = {
                 .task = s,
