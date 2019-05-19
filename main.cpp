@@ -20,9 +20,8 @@ void producer(data_t * data) {
     std::string s;
     int cnt = 1;
     for (infile >> s; !infile.eof(); infile >> s, cnt++) {
-        if (cnt % 10000000 == 0) {
-            std::cout << cnt << " graphs has been processed." << std::endl;
-            cnt = 0;
+        if (cnt % 1000000 == 0) {
+            break;
         }
         task_t task = {
                 .task = s,
